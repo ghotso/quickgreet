@@ -1,0 +1,24 @@
+# Example /etc/greetd/config.toml for quickgreet.
+#
+# quickgreet is a Wayland client, not a compositor, so greetd launches a
+# compositor and that compositor launches quickgreet. Pick one of the three
+# commands below; matching compositor configs live in ../compositors/.
+#
+# Before switching, snapshot whatever is here now:
+#   sudo cp /etc/greetd/config.toml /etc/greetd/config.toml.bak
+# and keep your previous greeter installed until this is proven.
+
+[terminal]
+vt = 1
+
+[default_session]
+# --- Hyprland (recommended if you already run it) ---
+command = "Hyprland -c /etc/greetd/hyprland-greeter.conf"
+
+# --- sway ---
+# command = "sway --config /etc/greetd/sway-greeter.config"
+
+# --- cage (simplest; single-output only) ---
+# command = "cage -s -- qs -p /usr/share/quickgreet/greeter.qml"
+
+user = "greeter"

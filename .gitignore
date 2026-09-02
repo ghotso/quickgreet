@@ -1,0 +1,12 @@
+# Arch packaging output
+packaging/*.pkg.tar.*
+packaging/*.tar.gz
+packaging/src/
+packaging/pkg/
+
+# Editors
+.qmlls.ini
+*.qmlc
+*.jsc
+*~
+.*.swp

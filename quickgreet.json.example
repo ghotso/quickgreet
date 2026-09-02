@@ -1,0 +1,34 @@
+{
+  "session": {
+    "command": null,
+    "environment": []
+  },
+
+  "appearance": {
+    "paletteSource": "~/.local/state/caelestia/scheme.json",
+    "wallpaperSource": "~/.local/state/caelestia/wallpaper/path.txt",
+    "wallpaperFallback": "",
+    "blurWallpaper": true,
+    "blurAmount": 24,
+    "dim": 0.22,
+    "avatarPath": "~/.face",
+    "greeting": "",
+    "clockFormat": "HH:mm",
+    "dateFormat": "dddd • d MMM"
+  },
+
+  "behaviour": {
+    "showUserPicker": "auto",
+    "showSessionPicker": "auto",
+    "rememberLastUser": true,
+    "rememberLastSession": true,
+    "minUid": 1000,
+    "maxUid": 60000
+  },
+
+  "dev": {
+    "mockPassword": "test",
+    "mockDelayMs": 600,
+    "mockUsers": []
+  }
+}

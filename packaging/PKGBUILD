@@ -1,0 +1,47 @@
+# Maintainer: ghotso <https://github.com/ghotso>
+pkgname=quickgreet
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="A greetd login greeter built with Quickshell, themed from a Material You palette"
+arch=('any')
+url="https://github.com/ghotso/quickgreet"
+license=('GPL-3.0-or-later')
+depends=('quickshell' 'greetd' 'qt6-declarative')
+optdepends=(
+    'hyprland: host compositor (multi-monitor capable)'
+    'sway: host compositor (multi-monitor capable)'
+    'cage: host compositor (single output only)'
+)
+# Ship a default config, but never clobber a local one on upgrade.
+backup=('etc/quickgreet/config.json')
+provides=('greetd-greeter')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+
+    # Pure QML — nothing to build. The tree is installed as-is and run with
+    # `qs -p /usr/share/quickgreet/greeter.qml`; the qs.* import namespace
+    # resolves relative to greeter.qml's directory, so the layout must be kept.
+    install -d "$pkgdir/usr/share/$pkgname"
+    for d in components config services ui; do
+        cp -r "$d" "$pkgdir/usr/share/$pkgname/"
+    done
+    install -Dm644 greeter.qml "$pkgdir/usr/share/$pkgname/greeter.qml"
+
+    install -Dm644 quickgreet.json.example "$pkgdir/etc/quickgreet/config.json"
+
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+
+    # Example configs, so the wiring isn't only in the README.
+    install -Dm644 examples/greetd/config.toml \
+        "$pkgdir/usr/share/doc/$pkgname/examples/greetd-config.toml"
+    install -Dm644 examples/compositors/hyprland-greeter.conf \
+        "$pkgdir/usr/share/doc/$pkgname/examples/hyprland-greeter.conf"
+    install -Dm644 examples/compositors/sway-greeter.config \
+        "$pkgdir/usr/share/doc/$pkgname/examples/sway-greeter.config"
+    install -Dm644 examples/compositors/cage.md \
+        "$pkgdir/usr/share/doc/$pkgname/examples/cage.md"
+}
