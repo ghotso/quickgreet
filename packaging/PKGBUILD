@@ -1,6 +1,6 @@
 # Maintainer: ghotso <https://github.com/ghotso>
 pkgname=quickgreet
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=1
 pkgdesc="A greetd login greeter built with Quickshell, themed from a Material You palette"
 arch=('any')
@@ -42,6 +42,8 @@ package() {
     # Example configs, so the wiring isn't only in the README.
     install -Dm644 examples/greetd/config.toml \
         "$pkgdir/usr/share/doc/$pkgname/examples/greetd-config.toml"
+    install -Dm644 examples/compositors/hyprland-greeter.lua \
+        "$pkgdir/usr/share/doc/$pkgname/examples/hyprland-greeter.lua"
     install -Dm644 examples/compositors/hyprland-greeter.conf \
         "$pkgdir/usr/share/doc/$pkgname/examples/hyprland-greeter.conf"
     install -Dm644 examples/compositors/sway-greeter.config \

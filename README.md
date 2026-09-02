@@ -59,7 +59,7 @@ vt = 1
 
 [default_session]
 # Hyprland (best if you already run it — one set of monitor semantics)
-command = "Hyprland -c /etc/greetd/hyprland-greeter.conf"
+command = "start-hyprland -- -c /etc/greetd/hyprland-greeter.lua"
 # sway
 # command = "sway --config /etc/greetd/sway-greeter.config"
 # cage — simplest, but single-output only
@@ -72,6 +72,25 @@ Each one sets up your outputs and then runs:
 
 ```
 qs -p /usr/share/quickgreet/greeter.qml
+```
+
+**On Hyprland, two details are worth getting right**, because anything Hyprland
+prints at startup is drawn *over the login screen* rather than scrolling past in
+a terminal you never look at:
+
+- **Use the `.lua` config, not `.conf`.** Hyprland 0.56 warns that `.conf`
+  "support ... will be removed in Hyprland 0.57". Use
+  [`hyprland-greeter.conf`](examples/compositors/hyprland-greeter.conf) only if
+  you're on an older Hyprland that has no Lua support.
+- **Launch through `start-hyprland --`.** Called directly, Hyprland warns it
+  "is being launched without start-hyprland". The wrapper is a watchdog that
+  exits when Hyprland exits cleanly — which is exactly what the greeter does at
+  handoff — so it won't keep the greeter alive over your session.
+
+Validate whichever you use before restarting greetd:
+
+```sh
+Hyprland --verify-config -c /etc/greetd/hyprland-greeter.lua
 ```
 
 **Multi-monitor:** monitor layout is deliberately *not* quickgreet's

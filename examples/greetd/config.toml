@@ -13,7 +13,13 @@ vt = 1
 
 [default_session]
 # --- Hyprland (recommended if you already run it) ---
-command = "Hyprland -c /etc/greetd/hyprland-greeter.conf"
+# `start-hyprland --` is Hyprland's own launcher wrapper. Launching Hyprland
+# directly makes it warn that it "is being launched without start-hyprland",
+# and on a greeter that warning is drawn over the login screen. The wrapper is
+# a watchdog: it exits when Hyprland exits cleanly, which is what the greeter
+# does at handoff, so it does not keep the greeter alive after login.
+# On Hyprland older than 0.56, use hyprland-greeter.conf instead of the .lua.
+command = "start-hyprland -- -c /etc/greetd/hyprland-greeter.lua"
 
 # --- sway ---
 # command = "sway --config /etc/greetd/sway-greeter.config"

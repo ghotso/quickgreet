@@ -19,7 +19,8 @@ Item {
     implicitWidth: Tokens.px(Tokens.sizes.avatar)
     implicitHeight: Tokens.px(Tokens.sizes.avatar)
 
-    readonly property string path: Config.expand(Config.appearance.avatarPath)
+    // Empty until Config has confirmed the file exists — see Config.avatarExists.
+    readonly property string path: Config.avatarExists ? Config.avatarPath : ""
     readonly property bool hasImage: image.status === Image.Ready
 
     readonly property string initial: {

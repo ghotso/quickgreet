@@ -69,6 +69,23 @@ Singleton {
 
     property var loaded: ({})
 
+    // Resolved once at startup: is the avatar file actually there?
+    //
+    // Probed with `test -f` rather than by letting the Image try and fail. Qt
+    // logs `Cannot open: file://...` for a missing source, and since most
+    // machines have no ~/.face — the case the initials fallback exists for —
+    // that warning would fire on every greeter start, once per screen. Noise
+    // is expensive here specifically: the journal is the only debugging
+    // surface when a login screen misbehaves.
+    readonly property string avatarPath: expand(appearance.avatarPath)
+    property bool avatarExists: false
+
+    Process {
+        running: root.avatarPath.length > 0
+        command: ["test", "-f", root.avatarPath]
+        onExited: code => root.avatarExists = code === 0
+    }
+
     // Section accessors — merged shallowly over the defaults, so a config that
     // sets one key in a section doesn't wipe the rest of it.
     readonly property var session: merge(defaults.session, loaded.session)
