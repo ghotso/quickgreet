@@ -15,11 +15,15 @@ optdepends=(
 # Ship a default config, but never clobber a local one on upgrade.
 backup=('etc/quickgreet/config.json')
 provides=('greetd-greeter')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+makedepends=('git')
+# Git source pinned to the tag rather than GitHub's generated tarball: those
+# archives aren't guaranteed byte-stable, and a regenerated one silently breaks
+# a pinned checksum. 'SKIP' is the norm for git sources — the tag is the pin.
+source=("$pkgname::git+$url.git#tag=v$pkgver")
 sha256sums=('SKIP')
 
 package() {
-    cd "$srcdir/$pkgname-$pkgver"
+    cd "$srcdir/$pkgname"
 
     # Pure QML — nothing to build. The tree is installed as-is and run with
     # `qs -p /usr/share/quickgreet/greeter.qml`; the qs.* import namespace
