@@ -1,6 +1,29 @@
 # Changelog
 
-## Unreleased
+## v0.1.2 — 2026-09-03
+
+### Security
+
+- **A failed OTP/token prompt could leave the next password typed in
+  cleartext on screen.** `Auth.echo` — which decides whether typed input
+  renders as visible text or masked dots — was only ever set when a new
+  `auth_message` arrived, never reset on failure. greetd's protocol allows
+  any prompt in a PAM conversation to request visible echo, not just an
+  OTP step specifically, so a PAM stack whose first prompt is `visible` left
+  `echo` stuck `true` once that prompt was rejected — whatever the user
+  retyped next, quite possibly their real password, rendered in clear
+  instead of masked. `fail()` and `fatal()` now reset `echo` and `prompt`
+  whenever an authentication attempt ends, so the field always defaults back
+  to masked until a fresh prompt says otherwise.
+- **A malformed `minUid`/`maxUid` in config.json silently exposed every
+  account, root included, in the login picker.** `uid < min` and
+  `uid >= max` both evaluate to `false` against a non-number, so a config
+  typo (a quoted `"1000"`, a key resolving to `undefined`) disabled the UID
+  filter entirely instead of falling back to the documented default —
+  contradicting this project's own "malformed config never breaks silently"
+  design. `Users.parse()` now coerces both bounds through a helper that
+  accepts a numeric string but falls back to the built-in default on
+  anything else.
 
 ### Fixed
 

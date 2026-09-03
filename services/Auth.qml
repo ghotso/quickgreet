@@ -110,6 +110,15 @@ Singleton {
         status = Auth.Status.Failed;
         message = msg;
         clear();
+        // The conversation that set `echo` just ended (onAuthFailure already
+        // called cancelSession()) — the next Enter starts a brand new one,
+        // which will set its own echo from its own first prompt. Until then,
+        // typed characters must default back to masked: leaving a stale
+        // echo=true from a prior visible-echo prompt (an OTP/token step, say)
+        // would otherwise show whatever the user types next — quite possibly
+        // their password on retry — in cleartext.
+        echo = false;
+        prompt = "";
         flashMsg();
         resetTimer.restart();
     }
@@ -118,6 +127,8 @@ Singleton {
         status = Auth.Status.Fatal;
         message = msg;
         clear();
+        echo = false;
+        prompt = "";
         flashMsg();
         console.warn(`quickgreet: ${msg}`);
     }

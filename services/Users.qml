@@ -23,6 +23,15 @@ Singleton {
     // (or expose) whoever happens to have an account on the machine.
     readonly property var mocked: DevMode.enabled ? (Config.dev.mockUsers ?? []) : []
 
+    // A non-numeric minUid/maxUid (a config typo, a stray quoted string) must
+    // not silently disable the whole filter — `uid < min` and `uid >= max`
+    // both evaluate to false against a non-number, which would offer every
+    // account on the box, root included, as a login choice.
+    function toUid(v: var, fallback: int): int {
+        const n = typeof v === "number" ? v : parseInt(v);
+        return Number.isFinite(n) ? Math.trunc(n) : fallback;
+    }
+
     function parse(passwd: string): void {
         if (root.mocked.length) {
             root.list = root.mocked;
@@ -30,8 +39,8 @@ Singleton {
             return;
         }
 
-        const min = Config.behaviour.minUid;
-        const max = Config.behaviour.maxUid;
+        const min = root.toUid(Config.behaviour.minUid, Config.defaults.behaviour.minUid);
+        const max = root.toUid(Config.behaviour.maxUid, Config.defaults.behaviour.maxUid);
         const out = [];
 
         for (const line of passwd.split("\n")) {
