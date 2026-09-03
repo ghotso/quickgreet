@@ -20,10 +20,39 @@
 
 ### Added
 
+- **Look-and-feel polish pass**, partly inspired by caelestia-shell's lock
+  screen (a different, unrelated project — quickgreet has no code dependency
+  on it, only a shared palette *file format*):
+  - `appearance.clockTwoTone` — hour and minute rendered in different palette
+    colours, with a small AM/PM pill for a 12-hour `clockFormat`.
+  - `appearance.avatarShape` gains `"squircle"` — a soft superellipse blob,
+    hand-drawn on a `Canvas` like the existing submit-arrow, no shapes
+    library.
+  - The submit arrow now has hover/press feedback (scale + opacity).
+  - `appearance.passwordReveal` (on by default) — a hold-to-reveal eye button
+    next to the submit arrow shows the typed password in clear while held.
+  - `appearance.capsLockHint` (**opt-in**, off by default) — a muted "Caps
+    Lock is on" line under the password field. Best-effort: seeded from
+    `hyprctl -j devices` on a Hyprland greeter session, otherwise tracked
+    from key presses seen after the greeter gets keyboard focus. Designed to
+    only ever assert "on", never a false "off".
+  - The login card now has a matching, brief collapse-out on successful
+    login (mirroring its existing entrance), instead of appearing on screen
+    then disappearing abruptly. Adds a bounded ~250ms delay between greetd
+    signalling success and the actual session handoff so the motion has time
+    to play.
+  - `appearance.blurAmount`'s ceiling is now documented up to `128` (was
+    undocumented above the default `24`), with a note that greeter sessions
+    often run on unaccelerated rendering where blur cost is much higher than
+    on a real desktop session.
+  - The password field's typed-character dots are now a real `ListView` over
+    the actual characters (a Quickshell `ScriptModel`), not just a count —
+    each dot pops in as before, but a dot removed by backspace now fades and
+    shrinks itself out instead of the row just vanishing, and dots alternate
+    between a circle and the squircle shape above.
 - `appearance.accentColor` — override the primary accent independently of
   the palette file.
 - `appearance.radiusScale` — multiply the login card's corner radius.
-- `appearance.avatarShape` — `"circle"` (default), `"rounded"` or `"square"`.
 - `packaging/quickgreet-git/PKGBUILD` — tracks the `main` branch HEAD, for
   installing and testing unreleased changes as a real package (unlike demo
   mode, this exercises the actual unprivileged `greeter`-account

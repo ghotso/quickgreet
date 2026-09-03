@@ -45,10 +45,13 @@ Singleton {
                 accentColor: null, // hex ("#rrggbb" or "rrggbb"), null = from palette
                 radiusScale: 1, // multiplies Tokens.rounding.* — 0 sharp, 1 default
                 avatarPath: "~/.face",
-                avatarShape: "circle", // "circle" | "rounded" | "square"
+                avatarShape: "circle", // "circle" | "rounded" | "square" | "squircle"
                 greeting: "",
                 clockFormat: "HH:mm",
-                dateFormat: "dddd • d MMM"
+                dateFormat: "dddd • d MMM",
+                clockTwoTone: true, // hour/minute in different palette colours
+                passwordReveal: true, // hold-to-reveal button on the password field
+                capsLockHint: false // opt-in: see README, "Caps Lock hint" caveats
             },
             behaviour: {
                 showUserPicker: "auto", // "auto" | "always" | "never"

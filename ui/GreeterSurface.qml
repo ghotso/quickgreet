@@ -27,6 +27,7 @@ FocusScope {
     focus: true
     Keys.onPressed: event => {
         Auth.handleKey(event);
+        CapsLock.handleKey(event);
         event.accepted = true;
     }
 
@@ -119,12 +120,18 @@ FocusScope {
             shadowVerticalOffset: 6
         }
 
-        scale: 0.94
-        opacity: 0
-        Component.onCompleted: {
-            scale = 1;
-            opacity = 1;
-        }
+        // Bookend of the entrance below: greetd's own state (mirrored by
+        // Auth.backend.state) reaches sReadyToLaunch the instant auth
+        // succeeds, well before the real handoff — which Auth delays briefly
+        // specifically so this has time to play. Reads directly off backend
+        // state rather than a one-shot flag, so it also un-collapses for
+        // free if demo mode resets back to inactive.
+        readonly property bool exiting: (Auth.backend?.state ?? 0) >= Auth.sReadyToLaunch
+
+        property bool entered: false
+        scale: !entered ? 0.94 : (exiting ? 0.9 : 1)
+        opacity: !entered ? 0 : (exiting ? 0 : 1)
+        Component.onCompleted: entered = true
 
         Behavior on scale {
             Anim {

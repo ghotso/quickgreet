@@ -46,7 +46,11 @@ Item {
         autoPaddingEnabled: false
         blurEnabled: Config.appearance.blurWallpaper && Config.appearance.blurAmount > 0
         blur: 1
-        blurMax: Config.appearance.blurAmount
+        // Clamped rather than passed straight through: a negative/garbage
+        // config value shouldn't reach MultiEffect, and a very high one is
+        // expensive precisely where it's most likely to be paid — greeter
+        // sessions often run on unaccelerated software rendering.
+        blurMax: Math.max(0, Math.min(128, Config.appearance.blurAmount))
         blurMultiplier: 1
         opacity: wallpaper.status === Image.Ready ? 1 : 0
 

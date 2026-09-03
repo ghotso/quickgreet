@@ -158,15 +158,19 @@ to start because of a typo is a greeter that locks you out.
     "wallpaperSource": "~/.local/state/caelestia/wallpaper/path.txt",
     "wallpaperFallback": "",  // used when the above is unreadable
     "blurWallpaper": true,
-    "blurAmount": 24,         // 0 disables
+    "blurAmount": 24,         // 0 disables, up to 128; 48–64 gives a strong
+                               // frosted-glass look — see caveat below
     "dim": 0.22,              // scrim over the wallpaper, 0–1
     "accentColor": null,      // hex, overrides primary/onPrimary regardless of palette
     "radiusScale": 1,         // multiplies the login card's corner radius — 0 = sharp
     "avatarPath": "~/.face",  // falls back to the user's initial
-    "avatarShape": "circle",  // "circle" | "rounded" | "square"
+    "avatarShape": "circle",  // "circle" | "rounded" | "square" | "squircle"
     "greeting": "",
     "clockFormat": "HH:mm",
-    "dateFormat": "dddd • d MMM"
+    "dateFormat": "dddd • d MMM",
+    "clockTwoTone": true,     // hour/minute in different palette colours
+    "passwordReveal": true,   // hold-to-reveal button on the password field
+    "capsLockHint": false     // opt-in — see caveat below
   },
   "behaviour": {
     "showUserPicker":    "auto",  // "auto" | "always" | "never"
@@ -226,7 +230,29 @@ file:
   the avatar have their own fixed/`avatarShape`-driven rounding and aren't
   affected.
 - **`avatarShape`** controls the avatar's mask: `"circle"` (default),
-  `"rounded"` (a large rounded-square) or `"square"`.
+  `"rounded"` (a large rounded-square), `"square"` or `"squircle"` (a soft
+  superellipse blob).
+- **`blurAmount`** can go up to `128`, but the ceiling is documented rather
+  than defaulted higher: a greeter session commonly runs on unaccelerated
+  (software/llvmpipe) rendering, where blur cost is much higher than on your
+  real, GPU-accelerated desktop session. Test a raised value against the
+  actual greetd session, not just `QUICKGREET_DEMO=1`, before relying on it.
+- **`clockTwoTone`** colours the hour in the primary/accent colour and the
+  minute in the secondary colour, with a small AM/PM pill for a 12-hour
+  `clockFormat`. Set to `false` for the original single-colour clock.
+- **`passwordReveal`** adds a hold-to-reveal eye button next to the password
+  field's submit arrow: the typed password shows in clear only while it's
+  held down. On by default; consider setting it to `false` on a shared or
+  kiosk machine, since it's a genuine shoulder-surfing/screen-recording
+  surface on a login screen specifically.
+- **`capsLockHint`** shows "Caps Lock is on" under the password field —
+  **opt-in, off by default**. There is no portable way to read lock-key
+  state, so it's tracked from key presses seen while the greeter has
+  keyboard focus; on a Hyprland greeter session it also seeds its initial
+  guess from `hyprctl -j devices`, but on sway/cage, or if Caps Lock was
+  already on *before* the greeter's keyboard grab started, that guess can be
+  wrong. It's designed to only ever assert "on", never a false "off", but
+  turn it on only if that residual uncertainty is acceptable to you.
 
 ## Developing
 

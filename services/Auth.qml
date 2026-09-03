@@ -122,7 +122,7 @@ Singleton {
         console.warn(`quickgreet: ${msg}`);
     }
 
-    function launch(): void {
+    function performLaunch(): void {
         const argv = Config.session.command?.length ? Config.session.command : Sessions.argv(selectedSession);
 
         if (!argv.length) {
@@ -185,12 +185,24 @@ Singleton {
         }
 
         function onReadyToLaunch(): void {
-            root.launch();
+            // A short, bounded gap between greetd saying "go" and quickgreet
+            // actually handing off — gives the UI's exit transition (bound to
+            // backend.state reaching sReadyToLaunch, see GreeterSurface.qml)
+            // a moment to play before the real handoff happens. Bounded by a
+            // Timer rather than anything the UI drives, so the handoff always
+            // happens even if nothing is listening.
+            launchTimer.restart();
         }
 
         function onError(message: string): void {
             root.fatal(message || "greetd error");
         }
+    }
+
+    Timer {
+        id: launchTimer
+        interval: 250
+        onTriggered: root.performLaunch()
     }
 
     Timer {

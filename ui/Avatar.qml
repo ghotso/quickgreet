@@ -40,11 +40,26 @@ Item {
         }
     }
 
-    StyledRect {
+    // Squircle isn't radius-expressible, so it's a separate shape entirely
+    // rather than a shapeRadius value — see components/Squircle.qml.
+    readonly property bool squircle: Config.appearance.avatarShape === "squircle"
+
+    Item {
         anchors.fill: parent
-        radius: root.shapeRadius
-        color: Colours.c.primaryContainer ?? Colours.c.surfaceContainerHigh
         visible: !root.hasImage
+
+        StyledRect {
+            anchors.fill: parent
+            radius: root.shapeRadius
+            color: Colours.c.primaryContainer ?? Colours.c.surfaceContainerHigh
+            visible: !root.squircle
+        }
+
+        Squircle {
+            anchors.fill: parent
+            color: Colours.c.primaryContainer ?? Colours.c.surfaceContainerHigh
+            visible: root.squircle
+        }
 
         StyledText {
             anchors.centerIn: parent
@@ -85,6 +100,13 @@ Item {
             anchors.fill: parent
             radius: root.shapeRadius
             color: "black"
+            visible: !root.squircle
+        }
+
+        Squircle {
+            anchors.fill: parent
+            color: "black"
+            visible: root.squircle
         }
     }
 }
