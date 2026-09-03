@@ -118,6 +118,29 @@ sudo chown -R greeter:greeter /var/lib/greetd/.local/state/caelestia
 Re-run after a deliberate theme change. This is a static copy on purpose —
 there is no live sync, because there's no session to sync from at login time.
 
+### Letting the greeter read your avatar
+
+Same problem as the palette: `greeter` usually can't read into your home
+directory at all. The default `avatarPath` is `~/.face`, which expands to
+`greeter`'s *own* home — so copying the file there needs no config change:
+
+```sh
+# confirm greeter's actual home first — commonly /var/lib/greetd
+getent passwd greeter
+
+sudo cp ~/.face /var/lib/greetd/.face
+sudo chown greeter:greeter /var/lib/greetd/.face
+sudo chmod 644 /var/lib/greetd/.face
+```
+
+Re-run after you change your avatar — same static-copy caveat as the
+palette above; there's no live sync at login time.
+
+If the greeter still falls back to your initials, check the journal: an
+avatar that exists but can't be read now logs one line; a path with nothing
+there at all stays silent, since that's the default case on most machines
+and isn't itself an error.
+
 ## Configuration
 
 `/etc/quickgreet/config.json`, or `$QUICKGREET_CONFIG`. Every key is optional
@@ -137,7 +160,10 @@ to start because of a typo is a greeter that locks you out.
     "blurWallpaper": true,
     "blurAmount": 24,         // 0 disables
     "dim": 0.22,              // scrim over the wallpaper, 0–1
+    "accentColor": null,      // hex, overrides primary/onPrimary regardless of palette
+    "radiusScale": 1,         // multiplies the login card's corner radius — 0 = sharp
     "avatarPath": "~/.face",  // falls back to the user's initial
+    "avatarShape": "circle",  // "circle" | "rounded" | "square"
     "greeting": "",
     "clockFormat": "HH:mm",
     "dateFormat": "dddd • d MMM"
@@ -182,6 +208,25 @@ palette. The roles actually used are `surface`, `surfaceDim`,
 `primary`, `onPrimary`, `primaryContainer`, `onPrimaryContainer`,
 `secondaryContainer`, `onSecondaryContainer`, `outline`, `outlineVariant`,
 `error`, `errorContainer`, `onErrorContainer`, `shadow` and `scrim`.
+
+### Customizing beyond the palette
+
+A few things are config-driven rather than being baked into the palette
+file:
+
+- **`accentColor`** overrides `primary`, `onPrimary`, `primaryContainer` and
+  `onPrimaryContainer` on top of whatever the palette (or built-in
+  fallback) provided — a readable `onPrimary*` is computed from a simple
+  luminance check, not full Material tonal generation. It deliberately does
+  **not** touch `secondaryContainer`/`onSecondaryContainer`; edit
+  `colours.secondaryContainer` in the palette file itself for that.
+- **`radiusScale`** multiplies the login card's corner radius (`0` = sharp
+  corners, `1` = the current default, `>1` = rounder). It only affects that
+  one `Tokens.rounding`-driven shape — the pill-shaped password field and
+  the avatar have their own fixed/`avatarShape`-driven rounding and aren't
+  affected.
+- **`avatarShape`** controls the avatar's mask: `"circle"` (default),
+  `"rounded"` (a large rounded-square) or `"square"`.
 
 ## Developing
 

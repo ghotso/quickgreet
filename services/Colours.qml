@@ -66,7 +66,42 @@ Singleton {
     // Named `Colours`, not `Palette`: QtQuick already exports a `Palette` type
     // and the collision silently shadows this singleton instead of erroring —
     // properties just come back `undefined`, which is a miserable thing to debug.
-    property var c: fallback
+    property var base: fallback
+
+    // What every other file actually binds to. Recomputes whenever `base`
+    // changes (palette reload, load()/useFallback()) or
+    // Config.appearance.accentColor changes (config reload) — both are plain
+    // property reads, so this needs no manual wiring.
+    readonly property var c: applyAccent(base)
+
+    function applyAccent(colours: var): var {
+        const hex = Config.appearance.accentColor;
+        if (!hex || typeof hex !== "string" || !/^#?[0-9a-fA-F]{6}$/.test(hex))
+            return colours;
+        const accent = hex.startsWith("#") ? hex : `#${hex}`;
+        const onAccent = readableOn(accent);
+        // primaryContainer mirrors primary flat — no distinct "container" tone
+        // without real tonal-palette generation. Deliberately NOT touching
+        // secondaryContainer/onSecondaryContainer — edit the palette file's
+        // own colours.secondaryContainer for that.
+        return Object.assign({}, colours, {
+            primary: accent,
+            primaryContainer: accent,
+            onPrimary: onAccent,
+            onPrimaryContainer: onAccent
+        });
+    }
+
+    // WCAG relative-luminance threshold — enough to keep text legible
+    // against an arbitrary accent, not full Material tonal generation.
+    function readableOn(hex: string): string {
+        const h = hex.replace("#", "");
+        const r = parseInt(h.substring(0, 2), 16) / 255;
+        const g = parseInt(h.substring(2, 4), 16) / 255;
+        const b = parseInt(h.substring(4, 6), 16) / 255;
+        const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        return lum > 0.55 ? "#1a1a1a" : "#ffffff";
+    }
 
     function load(data: string): void {
         const scheme = JSON.parse(data);
@@ -81,17 +116,26 @@ Singleton {
                 next[name] = hex.startsWith("#") ? hex : `#${hex}`;
         }
 
-        root.c = next;
+        root.base = next;
         root.schemeName = scheme.name ?? "unknown";
         root.flavour = scheme.flavour ?? "default";
         root.light = scheme.mode === "light";
     }
 
     function useFallback(reason: string): void {
-        root.c = root.fallback;
+        root.base = root.fallback;
         root.schemeName = "quickgreet-default";
         root.light = false;
         console.log(`quickgreet: ${reason} — using built-in palette`);
+    }
+
+    Connections {
+        target: Config
+        function onAppearanceChanged(): void {
+            const hex = Config.appearance.accentColor;
+            if (hex && typeof hex === "string" && !/^#?[0-9a-fA-F]{6}$/.test(hex))
+                console.warn(`quickgreet: appearance.accentColor "${hex}" is not a 6-digit hex colour — ignoring it`);
+        }
     }
 
     FileView {

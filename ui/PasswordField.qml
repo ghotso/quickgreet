@@ -137,25 +137,32 @@ StyledRect {
             Canvas {
                 id: arrow
                 anchors.centerIn: parent
-                width: Tokens.px(18)
-                height: Tokens.px(18)
+                width: Tokens.px(22)
+                height: Tokens.px(22)
 
                 readonly property color stroke: Auth.buffer.length ? (Colours.c.onPrimary ?? Colours.c.surface) : (Colours.c.onSurfaceVariant ?? Colours.c.onSurface)
                 onStrokeChanged: requestPaint()
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
 
                 onPaint: {
                     const ctx = getContext("2d");
                     ctx.reset();
+
+                    // Chevron authored on an 18x18 design grid, scaled to the
+                    // canvas's actual (already Tokens.scale-adjusted) size so
+                    // it stays centered and proportional at any panel scale.
+                    const s = width / 18;
                     ctx.strokeStyle = stroke;
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 2 * s;
                     ctx.lineCap = "round";
                     ctx.lineJoin = "round";
                     ctx.beginPath();
-                    ctx.moveTo(3, 9);
-                    ctx.lineTo(15, 9);
-                    ctx.moveTo(9.5, 3.5);
-                    ctx.lineTo(15, 9);
-                    ctx.lineTo(9.5, 14.5);
+                    ctx.moveTo(3 * s, 9 * s);
+                    ctx.lineTo(15 * s, 9 * s);
+                    ctx.moveTo(9.5 * s, 3.5 * s);
+                    ctx.lineTo(15 * s, 9 * s);
+                    ctx.lineTo(9.5 * s, 14.5 * s);
                     ctx.stroke();
                 }
             }

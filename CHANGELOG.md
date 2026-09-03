@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Avatar never showed on a real install.** `avatarPath` expands against
+  whatever account runs the greeter process — in demo mode that's your own
+  desktop session, in production it's the unprivileged `greeter` account,
+  whose home has no `.face`. The existence probe now also distinguishes
+  "not found" (silent, the common case) from "exists but unreadable" or
+  "exists but not a regular file" (now logged once), and the README documents
+  the same copy-and-chown workaround already given for the palette/wallpaper.
+- **Submit-button arrow was too small and drifted off-center.** It's drawn on
+  a `Canvas` whose path was hardcoded in absolute pixel coordinates, so it
+  didn't scale with `Tokens.scale` — on a real (often unscaled 4K) panel it
+  stayed pinned near the canvas's origin instead of centering and growing
+  with the rest of the UI. The path is now computed from the canvas's own
+  size, and the icon is slightly larger to better fill the button.
+
+### Added
+
+- `appearance.accentColor` — override the primary accent independently of
+  the palette file.
+- `appearance.radiusScale` — multiply the login card's corner radius.
+- `appearance.avatarShape` — `"circle"` (default), `"rounded"` or `"square"`.
+
 ## v0.1.1 — 2026-09-03
 
 Everything here is about what the greeter *prints*. A login screen has nowhere

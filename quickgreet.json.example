@@ -11,7 +11,10 @@
     "blurWallpaper": true,
     "blurAmount": 24,
     "dim": 0.22,
+    "accentColor": null,
+    "radiusScale": 1,
     "avatarPath": "~/.face",
+    "avatarShape": "circle",
     "greeting": "",
     "clockFormat": "HH:mm",
     "dateFormat": "dddd • d MMM"

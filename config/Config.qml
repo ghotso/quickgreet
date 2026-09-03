@@ -42,7 +42,10 @@ Singleton {
                 blurWallpaper: true,
                 blurAmount: 24,
                 dim: 0.22,
+                accentColor: null, // hex ("#rrggbb" or "rrggbb"), null = from palette
+                radiusScale: 1, // multiplies Tokens.rounding.* — 0 sharp, 1 default
                 avatarPath: "~/.face",
+                avatarShape: "circle", // "circle" | "rounded" | "square"
                 greeting: "",
                 clockFormat: "HH:mm",
                 dateFormat: "dddd • d MMM"
@@ -71,19 +74,46 @@ Singleton {
 
     // Resolved once at startup: is the avatar file actually there?
     //
-    // Probed with `test -f` rather than by letting the Image try and fail. Qt
+    // Probed with `stat` rather than by letting the Image try and fail. Qt
     // logs `Cannot open: file://...` for a missing source, and since most
     // machines have no ~/.face — the case the initials fallback exists for —
     // that warning would fire on every greeter start, once per screen. Noise
     // is expensive here specifically: the journal is the only debugging
-    // surface when a login screen misbehaves.
+    // surface when a login screen misbehaves — so a plain "not found" stays
+    // silent, but `stat`'s file-type output and stderr let us still warn
+    // once for the two cases that ARE a real misconfiguration: the path
+    // exists but isn't a regular file, or it exists but isn't readable by
+    // this user (the same permissions trap documented in the README under
+    // "Letting the greeter read your avatar").
     readonly property string avatarPath: expand(appearance.avatarPath)
     property bool avatarExists: false
 
     Process {
+        id: avatarProbe
+
         running: root.avatarPath.length > 0
-        command: ["test", "-f", root.avatarPath]
-        onExited: code => root.avatarExists = code === 0
+        command: ["stat", "-c", "%F", root.avatarPath]
+        environment: ({ LC_ALL: "C", LANG: "C" })
+
+        property string probeType: ""
+        property string probeError: ""
+
+        stdout: StdioCollector {
+            onStreamFinished: avatarProbe.probeType = text.trim()
+        }
+        stderr: StdioCollector {
+            onStreamFinished: avatarProbe.probeError = text.trim()
+        }
+
+        onExited: code => {
+            root.avatarExists = code === 0 && probeType === "regular file";
+            if (code === 0 && !root.avatarExists)
+                console.warn(`quickgreet: avatarPath "${root.avatarPath}" exists but is not a regular file (${probeType || "unknown"}) — ignoring it`);
+            else if (code !== 0 && /Permission denied/.test(probeError))
+                console.warn(`quickgreet: avatarPath "${root.avatarPath}" exists but is not readable by this user — check ownership/permissions (see README, "Letting the greeter read your avatar")`);
+            // else: not found at all — the default, expected case on most
+            // machines. Stay silent, same as before.
+        }
     }
 
     // Section accessors — merged shallowly over the defaults, so a config that

@@ -28,9 +28,21 @@ Item {
         return src.length ? src[0].toUpperCase() : "?";
     }
 
+    // Drives both masking rectangles below so they can never drift apart.
+    readonly property int shapeRadius: {
+        switch (Config.appearance.avatarShape) {
+        case "square":
+            return 0;
+        case "rounded":
+            return Tokens.rounding.large;
+        default:
+            return Math.round(root.width / 2);
+        }
+    }
+
     StyledRect {
         anchors.fill: parent
-        radius: width / 2
+        radius: root.shapeRadius
         color: Colours.c.primaryContainer ?? Colours.c.surfaceContainerHigh
         visible: !root.hasImage
 
@@ -71,7 +83,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            radius: width / 2
+            radius: root.shapeRadius
             color: "black"
         }
     }

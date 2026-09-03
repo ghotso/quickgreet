@@ -22,11 +22,15 @@ Singleton {
     }
 
     readonly property QtObject rounding: QtObject {
-        readonly property int small: 8
-        readonly property int normal: 12
-        readonly property int large: 20
-        readonly property int extraLarge: 28
-        readonly property int full: 1000
+        // Multiplies every value below. Not named `scale` — that's
+        // Tokens.scale above, the unrelated panel-DPI factor.
+        readonly property real factor: Math.max(0, Config.appearance.radiusScale)
+
+        readonly property int small: Math.round(8 * factor)
+        readonly property int normal: Math.round(12 * factor)
+        readonly property int large: Math.round(20 * factor)
+        readonly property int extraLarge: Math.round(28 * factor)
+        readonly property int full: 1000 // unscaled sentinel, not currently read anywhere
     }
 
     readonly property QtObject spacing: QtObject {
