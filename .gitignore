@@ -1,10 +1,17 @@
-# Arch packaging output
+# Arch packaging output — same build layout under both packaging/
+# (the tagged release PKGBUILD) and packaging/quickgreet-git/ (the
+# main-branch-HEAD PKGBUILD)
 packaging/*.pkg.tar.*
 packaging/*.tar.gz
 packaging/src/
 packaging/pkg/
+packaging/quickgreet-git/*.pkg.tar.*
+packaging/quickgreet-git/*.tar.gz
+packaging/quickgreet-git/src/
+packaging/quickgreet-git/pkg/
 # bare git clone makepkg creates for the git+ source
 packaging/quickgreet/
+packaging/quickgreet-git/quickgreet-git/
 
 # Editors
 .qmlls.ini

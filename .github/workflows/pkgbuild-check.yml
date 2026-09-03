@@ -4,15 +4,20 @@ on:
   push:
     paths:
       - packaging/PKGBUILD
+      - packaging/quickgreet-git/PKGBUILD
   pull_request:
     paths:
       - packaging/PKGBUILD
+      - packaging/quickgreet-git/PKGBUILD
 
 jobs:
   check:
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
+    strategy:
+      matrix:
+        dir: [packaging, packaging/quickgreet-git]
     steps:
       - uses: actions/checkout@v4
 
@@ -25,9 +30,9 @@ jobs:
           chown -R builder:builder .
 
       - name: Validate PKGBUILD syntax (no network — doesn't fetch `source`)
-        run: su builder -c 'cd packaging && makepkg --printsrcinfo' > /dev/null
+        run: su builder -c 'cd ${{ matrix.dir }} && makepkg --printsrcinfo' > /dev/null
 
       - name: namcap PKGBUILD
         run: |
-          su builder -c 'cd packaging && namcap PKGBUILD' | tee /tmp/namcap.out
+          su builder -c 'cd ${{ matrix.dir }} && namcap PKGBUILD' | tee /tmp/namcap.out
           test ! -s /tmp/namcap.out

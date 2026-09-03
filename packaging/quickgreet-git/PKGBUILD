@@ -1,0 +1,69 @@
+# Maintainer: ghotso <https://github.com/ghotso>
+#
+# Tracks the main branch HEAD — for local development and testing against
+# unreleased changes. For a real install, use ../PKGBUILD (quickgreet),
+# which is pinned to a tagged release; that's also what CI's release
+# workflow builds.
+pkgname=quickgreet-git
+pkgver=0.1.1.r2.g6d2cb81
+pkgrel=1
+pkgdesc="A greetd login greeter built with Quickshell, themed from a Material You palette (main branch)"
+arch=('any')
+url="https://github.com/ghotso/quickgreet"
+license=('GPL-3.0-or-later')
+depends=('quickshell' 'greetd' 'qt6-declarative')
+optdepends=(
+    'hyprland: host compositor (multi-monitor capable)'
+    'sway: host compositor (multi-monitor capable)'
+    'cage: host compositor (single output only)'
+)
+# Ship a default config, but never clobber a local one on upgrade.
+backup=('etc/quickgreet/config.json')
+provides=('quickgreet' 'greetd-greeter')
+conflicts=('quickgreet')
+makedepends=('git')
+source=("$pkgname::git+$url.git#branch=main")
+sha256sums=('SKIP')
+
+# Installs to the same paths as the release package (quickgreet, not
+# quickgreet-git) so /etc/greetd/config.toml's
+# `qs -p /usr/share/quickgreet/greeter.qml` and the config path stay
+# identical between the two — only one is ever installed at a time (see
+# conflicts= above).
+_instname=quickgreet
+
+pkgver() {
+    cd "$srcdir/$pkgname"
+    git describe --long --tags 2>/dev/null | sed 's/^v//; s/\([^-]*-g\)/r\1/; s/-/./g' \
+        || printf 'r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+package() {
+    cd "$srcdir/$pkgname"
+
+    # Pure QML — nothing to build. The tree is installed as-is and run with
+    # `qs -p /usr/share/quickgreet/greeter.qml`; the qs.* import namespace
+    # resolves relative to greeter.qml's directory, so the layout must be kept.
+    install -d "$pkgdir/usr/share/$_instname"
+    for d in components config services ui; do
+        cp -r "$d" "$pkgdir/usr/share/$_instname/"
+    done
+    install -Dm644 greeter.qml "$pkgdir/usr/share/$_instname/greeter.qml"
+
+    install -Dm644 quickgreet.json.example "$pkgdir/etc/quickgreet/config.json"
+
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$_instname/LICENSE"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$_instname/README.md"
+
+    # Example configs, so the wiring isn't only in the README.
+    install -Dm644 examples/greetd/config.toml \
+        "$pkgdir/usr/share/doc/$_instname/examples/greetd-config.toml"
+    install -Dm644 examples/compositors/hyprland-greeter.lua \
+        "$pkgdir/usr/share/doc/$_instname/examples/hyprland-greeter.lua"
+    install -Dm644 examples/compositors/hyprland-greeter.conf \
+        "$pkgdir/usr/share/doc/$_instname/examples/hyprland-greeter.conf"
+    install -Dm644 examples/compositors/sway-greeter.config \
+        "$pkgdir/usr/share/doc/$_instname/examples/sway-greeter.config"
+    install -Dm644 examples/compositors/cage.md \
+        "$pkgdir/usr/share/doc/$_instname/examples/cage.md"
+}

@@ -260,6 +260,23 @@ accounts on your machine, point `$QUICKGREET_CONFIG` at a file setting
 That substitution applies in demo mode only; the real greeter always reads
 `/etc/passwd`.
 
+Demo mode covers UI iteration, but it runs as your own user — it can't
+exercise the permissions issues that only show up as the unprivileged
+`greeter` account (see "Letting the greeter read your palette/avatar"
+above). To actually install and test unreleased changes for real:
+
+```sh
+cd packaging/quickgreet-git && makepkg -sif
+```
+
+`packaging/quickgreet-git/PKGBUILD` always builds from the current `main`
+branch HEAD (standard `-git` package convention: its `pkgver` is derived
+from `git describe`). It installs to the same paths as the regular
+`quickgreet` package and `conflicts`/`provides` against it, so only one is
+ever installed at a time. `packaging/PKGBUILD` — what `cd packaging &&
+makepkg -si` above uses, and what CI's release workflow builds — stays
+pinned to the latest tagged release.
+
 ## Rolling back
 
 Keep your previous greeter installed until you're happy. Snapshot the config

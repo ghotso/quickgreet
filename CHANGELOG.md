@@ -24,6 +24,11 @@
   the palette file.
 - `appearance.radiusScale` — multiply the login card's corner radius.
 - `appearance.avatarShape` — `"circle"` (default), `"rounded"` or `"square"`.
+- `packaging/quickgreet-git/PKGBUILD` — tracks the `main` branch HEAD, for
+  installing and testing unreleased changes as a real package (unlike demo
+  mode, this exercises the actual unprivileged `greeter`-account
+  permissions). `packaging/PKGBUILD` is unchanged — still pinned to the
+  latest tag, still what CI's release workflow builds.
 
 ## v0.1.1 — 2026-09-03
 
