@@ -1,0 +1,25 @@
+name: QML lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  qmllint:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install qt6-declarative
+        run: pacman -Syu --noconfirm qt6-declarative
+
+      - name: Run qmllint
+        # Arch also ships qt5-declarative's /usr/bin/qmllint, which silently
+        # exits 255 with no output on this repo's Qt6 QML — must call the
+        # Qt6 binary's full path, not bare `qmllint`. .qmllint.ini in the
+        # repo root is picked up automatically.
+        run: |
+          find . -name '*.qml' -not -path './packaging/*' -print0 \
+            | xargs -0 /usr/lib/qt6/bin/qmllint

@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build + release tooling
+        run: pacman -Syu --noconfirm git github-cli
+
+      - name: makepkg refuses to run as root — build as a throwaway user
+        run: |
+          useradd -m builder
+          chown -R builder:builder .
+
+      - name: Build the package
+        # $GITHUB_REF_NAME is the just-pushed tag, which packaging/PKGBUILD's
+        # git+url#tag=v$pkgver source resolves against — a real build is
+        # correct here (unlike on an untagged push/PR).
+        run: su builder -c 'cd packaging && makepkg -s --noconfirm'
+
+      - name: Extract this release's CHANGELOG.md section
+        run: |
+          awk -v tag="## ${GITHUB_REF_NAME}" '
+            $0 ~ "^" tag {flag=1; next}
+            /^## /{flag=0}
+            flag
+          ' CHANGELOG.md > /tmp/notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" packaging/*.pkg.tar.zst \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file /tmp/notes.md
