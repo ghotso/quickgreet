@@ -28,7 +28,16 @@ jobs:
         # $GITHUB_REF_NAME is the just-pushed tag, which packaging/PKGBUILD's
         # git+url#tag=v$pkgver source resolves against — a real build is
         # correct here (unlike on an untagged push/PR).
-        run: su builder -c 'cd packaging && makepkg -s --noconfirm'
+        #
+        # -d skips makepkg's own dependency install/check: `builder` has no
+        # passwordless sudo for it to shell out to pacman with, and
+        # `quickshell` (a `depends=`) isn't even in the official repos to
+        # begin with — see .qmllint.ini. None of that matters for actually
+        # producing the artifact: per PKGBUILD's own comment, this package is
+        # "pure QML — nothing to build," so package() only copies files;
+        # `depends=` is what pacman enforces for someone installing the
+        # built .pkg.tar.zst later, not something this build step needs.
+        run: su builder -c 'cd packaging && makepkg -d --noconfirm'
 
       - name: Extract this release's CHANGELOG.md section
         run: |
