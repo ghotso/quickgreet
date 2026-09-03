@@ -50,7 +50,15 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # --repo, explicitly: gh otherwise shells out to git to discover the
+        # repo from the checkout, which fails here ("not a git repository...
+        # Stopping at filesystem boundary") — the prior step's `chown -R
+        # builder:builder .` (needed so makepkg, which refuses to run as
+        # root, can write into the checkout) leaves this step, running back
+        # as root, unable to walk the tree to find .git. $GITHUB_REPOSITORY
+        # is always set by Actions, so there's no need for git to find it.
         run: |
           gh release create "$GITHUB_REF_NAME" packaging/*.pkg.tar.zst \
+            --repo "$GITHUB_REPOSITORY" \
             --title "$GITHUB_REF_NAME" \
             --notes-file /tmp/notes.md
