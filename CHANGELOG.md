@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.1.3 — 2026-09-07
+
+### Added
+
+- **Power controls on the login card** — suspend, reboot and power off, so the
+  machine can be shut down or restarted without logging in first. Gated by
+  `behaviour.powerControls`, a list of the verbs to show (all three by
+  default; `[]` hides the row entirely), with an unrecognised verb dropped
+  with a warning rather than failing the config load. Reboot and power off arm
+  on the first click and only run on a second one within three seconds:
+  systemd's shipped policy lets the active session take down *other* logged-in
+  sessions with no prompt, so a stray click on a login screen is worth a
+  confirmation. Suspend is trivially reversible and runs immediately. No
+  polkit rule ships with this — the greeter is the active session on the seat
+  while it's displayed, and `allow_active` is `yes` for power-off, reboot and
+  suspend alike; a rejected call surfaces as an on-screen message rather than
+  a dead button, since a distro or admin can override those defaults. The
+  glyphs are drawn on a `Canvas` like the existing submit arrow, so nothing
+  depends on an icon font being present in a bare greeter's fontconfig.
+- **More password-dot shapes, and the set is now configurable.**
+  `appearance.passwordDotShapes` takes a list of shape names cycled by dot
+  index, defaulting to `["circle", "squircle"]` — no change for an existing
+  config. Four new shapes join those two: `gem` (the squircle rotated 45°),
+  `wobbly` (a circle with a five-lobe ripple), `clover` (a four-lobe one), and
+  `ring` (stroked rather than filled — the one that stays legible at the 8px
+  a dot actually renders at on a 1080p panel, where silhouette differences
+  mostly don't). All six are drawn by a single `components/DotShape.qml`
+  canvas per dot however many shapes are configured, because the row is up to
+  24 dots and a greeter often runs on unaccelerated rendering. Each shape is
+  sized by matching its area to a same-box circle's rather than by fitting its
+  bounding box, so the ones that pinch on the diagonals don't read lighter
+  than the rest of the row. An unknown name, an empty list or a value that
+  isn't a list at all warns once and falls back.
+
+  The shape a dot draws is a function of its index and nothing else. The
+  delegate's model carries the real typed characters, so choosing a shape from
+  the character would paint the password's repeats and length onto the screen
+  for anyone watching — that is deliberately not done, and it is the
+  constraint any future change here has to keep.
+- `.claude/` — the `github-triage` and `orchestrate` skills, their
+  `task-executor`/`task-verifier` agents, `scripts/issue-status.sh` and a
+  `.github/workflows/issue-status.yml` that owns the two ends of the
+  `status:*` label lifecycle. Repo tooling, with no effect on the greeter
+  itself: both features above were implemented and verified through it.
+
 ## v0.1.2 — 2026-09-03
 
 ### Security
