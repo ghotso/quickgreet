@@ -128,22 +128,17 @@ StyledRect {
                     implicitWidth: Tokens.px(8)
                     implicitHeight: Tokens.px(8)
 
-                    // Alternates between the two dot shapes the greeter
-                    // already draws elsewhere (a plain circle, and the
-                    // squircle built for the avatar option), so a run of
-                    // typed characters doesn't read as one repeated glyph.
-                    readonly property bool squircle: index % 2 === 1
+                    // Cycles through the configured shape set by index only —
+                    // never by the character a dot stands for. Every delegate
+                    // here has the actual typed character in its model;
+                    // deriving shape from it would render the password's
+                    // repeats and structure on screen for anyone watching.
+                    readonly property string dotShape: Config.passwordDotShapes[dot.index % Config.passwordDotShapes.length]
 
-                    StyledRect {
+                    DotShape {
                         anchors.fill: parent
-                        radius: width / 2
+                        shape: dot.dotShape
                         color: Colours.c.onSurface
-                        visible: !dot.squircle
-                    }
-                    Squircle {
-                        anchors.fill: parent
-                        color: Colours.c.onSurface
-                        visible: dot.squircle
                     }
 
                     // Pops in exactly as the old per-count dot did — the

@@ -51,6 +51,7 @@ Singleton {
                 dateFormat: "dddd • d MMM",
                 clockTwoTone: true, // hour/minute in different palette colours
                 passwordReveal: true, // hold-to-reveal button on the password field
+                passwordDotShapes: ["circle", "squircle"], // cycles by index — see components/DotShape.qml
                 capsLockHint: false // opt-in: see README, "Caps Lock hint" caveats
             },
             behaviour: {
@@ -126,6 +127,34 @@ Singleton {
     readonly property var appearance: merge(defaults.appearance, loaded.appearance)
     readonly property var behaviour: merge(defaults.behaviour, loaded.behaviour ?? loaded.behavior)
     readonly property var dev: merge(defaults.dev, loaded.dev)
+
+    readonly property var knownDotShapes: ["circle", "squircle", "gem", "wobbly", "ring", "clover"]
+
+    // Validated separately from the plain shallow merge above: an empty list,
+    // a non-list value or an unrecognised shape name would otherwise reach
+    // PasswordField as-is (index % 0 is NaN) rather than falling back — a
+    // greeter that won't start over a config typo is exactly what this file
+    // exists to avoid.
+    readonly property var passwordDotShapes: validateDotShapes((loaded.appearance ?? {}).passwordDotShapes)
+
+    function validateDotShapes(raw: var): var {
+        if (raw === undefined)
+            return defaults.appearance.passwordDotShapes;
+        if (!Array.isArray(raw) || raw.length === 0) {
+            console.warn(`quickgreet: appearance.passwordDotShapes must be a non-empty array of shape names — using the default`);
+            return defaults.appearance.passwordDotShapes;
+        }
+        let warned = false;
+        return raw.map(name => {
+            if (typeof name === "string" && knownDotShapes.includes(name))
+                return name;
+            if (!warned) {
+                console.warn(`quickgreet: appearance.passwordDotShapes has an unknown shape (${JSON.stringify(name)}) — falling back to "circle" for it`);
+                warned = true;
+            }
+            return "circle";
+        });
+    }
 
     function merge(base: var, over: var): var {
         const out = Object.assign({}, base);

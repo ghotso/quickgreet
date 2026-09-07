@@ -170,6 +170,7 @@ to start because of a typo is a greeter that locks you out.
     "dateFormat": "dddd • d MMM",
     "clockTwoTone": true,     // hour/minute in different palette colours
     "passwordReveal": true,   // hold-to-reveal button on the password field
+    "passwordDotShapes": ["circle", "squircle"],  // cycles by index — see caveat below
     "capsLockHint": false     // opt-in — see caveat below
   },
   "behaviour": {
@@ -246,6 +247,17 @@ file:
   held down. On by default; consider setting it to `false` on a shared or
   kiosk machine, since it's a genuine shoulder-surfing/screen-recording
   surface on a login screen specifically.
+- **`passwordDotShapes`** is the set of shapes the password field's dots cycle
+  through by position, one per character typed: `"circle"`, `"squircle"`, a
+  rotated-squircle `"gem"`, a rippled `"wobbly"` circle, a stroked (not
+  filled) `"ring"`, and a four-lobed `"clover"`. The shape is always a
+  function of the dot's position, never of the character it stands for —
+  otherwise repeated characters would render as repeated shapes, showing the
+  password's structure on screen. A one-element list draws every dot the same
+  shape; the default `["circle", "squircle"]` alternates the two, matching
+  the greeter's previous, non-configurable behaviour. An unrecognised name
+  falls back to `"circle"` with one warning; an empty or malformed list falls
+  back to the default the same way, and the greeter still starts either way.
 - **`capsLockHint`** shows "Caps Lock is on" under the password field —
   **opt-in, off by default**. There is no portable way to read lock-key
   state, so it's tracked from key presses seen while the greeter has

@@ -20,6 +20,7 @@
     "dateFormat": "dddd • d MMM",
     "clockTwoTone": true,
     "passwordReveal": true,
+    "passwordDotShapes": ["circle", "squircle"],
     "capsLockHint": false
   },
 
