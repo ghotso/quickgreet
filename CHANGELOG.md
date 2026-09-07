@@ -2,6 +2,28 @@
 
 ## v0.1.3 — 2026-09-07
 
+### Fixed
+
+- **Too much dead space between the password field and the session picker.**
+  The status line under the password field reserved two lines of height
+  whether or not it had anything to show, and sat as a full row in the card's
+  layout, so the spacing either side of it was paid twice — 70px of mostly
+  empty gap on a 1080p screen, 140px on a 4K one. It now reserves one line and
+  grows past that only when a message actually wraps, and the password field
+  and its status line share a nested layout so the message reads as attached
+  to the field it describes. The gap drops by a third (70 → 46 units), while
+  the common case of a message appearing and clearing still moves nothing on
+  screen — the card is sized from its content and vertically centred, so a
+  status line that collapsed when empty would shift the password field up
+  under the user's hands at exactly the moment they mistyped.
+- **A long fatal message could render on top of the session picker.** The
+  status line is a plain `Item`, which doesn't clip, and its fixed height fit
+  about two lines — but the fatal string (`… — press Ctrl+Alt+F2 for a
+  terminal`) wraps to three in a card this width. A greeter that can't
+  authenticate anyone has that message as its only way to tell you how to
+  reach a terminal, so it drawing over the picker instead of pushing it down
+  mattered more than it looked. The box now grows to fit its text.
+
 ### Added
 
 - **Power controls on the login card** — suspend, reboot and power off, so the
