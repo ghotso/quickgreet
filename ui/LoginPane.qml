@@ -123,5 +123,10 @@ StyledRect {
             labelFor: s => s.name
             onSelected: i => root.sessionIndex = i
         }
+
+        PowerControls {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.topMargin: Tokens.px(Tokens.spacing.small)
+        }
     }
 }

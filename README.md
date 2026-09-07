@@ -178,7 +178,8 @@ to start because of a typo is a greeter that locks you out.
     "rememberLastUser": true,
     "rememberLastSession": true,
     "minUid": 1000,
-    "maxUid": 60000
+    "maxUid": 60000,
+    "powerControls": ["suspend", "reboot", "poweroff"]  // [] hides the row; unknown verbs are ignored
   }
 }
 ```
@@ -253,6 +254,21 @@ file:
   already on *before* the greeter's keyboard grab started, that guess can be
   wrong. It's designed to only ever assert "on", never a false "off", but
   turn it on only if that residual uncertainty is acceptable to you.
+
+### Power controls
+
+`behaviour.powerControls` shows a suspend/restart/power-off row on the login
+card, below the session picker. It runs through systemd-logind's
+`allow_active` policy — the greeter's session is the active one on the seat
+while it's shown, so these succeed with no polkit rule needed. That policy's
+`-multiple-sessions` variants default to allowing the call too, so a click
+here can take down someone else's already-logged-in session as well; restart
+and power off ask for a confirming second click before running, suspend does
+not. Set it to `[]` to hide the row entirely, or list only the verbs you
+want — an unrecognised entry is ignored with a warning, and the greeter still
+starts if the key is absent or malformed. In demo mode
+(`QUICKGREET_DEMO=1`), clicking any of them never actually runs anything; the
+argv it would have used is only logged.
 
 ## Developing
 

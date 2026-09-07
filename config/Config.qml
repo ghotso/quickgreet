@@ -59,7 +59,8 @@ Singleton {
                 rememberLastUser: true,
                 rememberLastSession: true,
                 minUid: 1000,
-                maxUid: 60000
+                maxUid: 60000,
+                powerControls: ["suspend", "reboot", "poweroff"] // [] hides the row; unknown verbs are ignored
             },
             dev: {
                 mockPassword: "test",

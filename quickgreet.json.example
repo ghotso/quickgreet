@@ -29,7 +29,8 @@
     "rememberLastUser": true,
     "rememberLastSession": true,
     "minUid": 1000,
-    "maxUid": 60000
+    "maxUid": 60000,
+    "powerControls": ["suspend", "reboot", "poweroff"]
   },
 
   "dev": {
