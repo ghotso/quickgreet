@@ -105,13 +105,22 @@ StyledRect {
             onSelected: i => root.userIndex = i
         }
 
-        PasswordField {
-            Layout.alignment: Qt.AlignHCenter
-            Layout.topMargin: Tokens.px(Tokens.spacing.extraSmall)
-        }
-
-        StateMessage {
+        ColumnLayout {
+            // Groups the password field with the status line that describes
+            // it, so the message reads as attached to the field rather than
+            // as a full sibling row spaced the same as everything else (see
+            // issue #3).
             Layout.fillWidth: true
+            Layout.topMargin: Tokens.px(Tokens.spacing.extraSmall)
+            spacing: Tokens.px(Tokens.spacing.small)
+
+            PasswordField {
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            StateMessage {
+                Layout.fillWidth: true
+            }
         }
 
         Picker {

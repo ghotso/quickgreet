@@ -12,7 +12,11 @@ import qs.services
 Item {
     id: root
 
-    implicitHeight: Tokens.px(34)
+    // One line reserved, not two: the empty and one-line cases must be the
+    // same height so nothing moves when a message appears or clears (see
+    // issue #3). A wrapped fatal message is the one case allowed to grow the
+    // box past the reserve, rather than overlapping whatever comes after it.
+    implicitHeight: Math.max(Tokens.px(20), label.implicitHeight)
 
     readonly property bool fatal: Auth.status === Auth.Status.Fatal
     // Only ever asserts "on" — see services/CapsLock.qml for why an
